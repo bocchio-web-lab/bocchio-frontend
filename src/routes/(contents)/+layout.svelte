@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import * as Header from '$lib/partials/headers/index';
+	import * as Header from '$lib/components/header/index';
 	import Slogan from '$lib/components/slogan/slogan.svelte';
 
 	$: isHome = $page.url.pathname === '/';
