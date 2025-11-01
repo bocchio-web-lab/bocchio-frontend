@@ -39,7 +39,7 @@
 </script>
 
 <div class="fixed top-0 -z-50 h-screen w-full animate-particleReveal bg-background opacity-0">
-	{#each Array(5) as _, index (index)}
+	{#each Array(100) as _, index (index)}
 		<figure class="particle absolute m-0 rounded-full bg-foreground"></figure>
 	{/each}
 </div>

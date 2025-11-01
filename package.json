@@ -41,9 +41,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/set-cookie-parser": "^2.4.10",
 		"bits-ui": "^0.21.13",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.438.0",
+		"set-cookie-parser": "^2.7.1",
 		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1"
 	}

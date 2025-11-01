@@ -5,35 +5,21 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-
-	data.posts.forEach((post) => {
-		console.log(post);
-		post.link = `${$page.url.pathname}/${post.slug}`;
-	});
 </script>
 
-{#each data.posts as project}
+{#each data.apps as app}
 	<Card.Root
 		class="group flex w-full flex-wrap justify-between gap-8 transition-transform odd:flex-row-reverse hover:scale-105"
 	>
 		<div class="grow-[2] basis-96 content-center">
 			<Card.Header>
-				<Card.Title>{project.title}</Card.Title>
-				<Card.Description>{project.description}</Card.Description>
+				<Card.Title>{app.title}</Card.Title>
+				<Card.Description>{app.description}</Card.Description>
 			</Card.Header>
 
 			<Card.Content>
-				{project.content}
+				{app.content}
 			</Card.Content>
-
-			<Card.Footer class="mt-auto hidden md:block">
-				<a
-					href={project.link}
-					class=" w-full"
-				>
-					<Button class="w-full">Read the content</Button>
-				</a>
-			</Card.Footer>
 		</div>
 		<div class="grow-[1] basis-60 content-center">
 			<img
@@ -43,12 +29,12 @@
 			/>
 		</div>
 
-		<Card.Footer class="mt-auto block w-full md:hidden">
+		<Card.Footer class="mt-auto block w-full">
 			<a
-				href={project.link}
+				href={app.link}
 				class=" w-full"
 			>
-				<Button class="w-full">Read the content</Button>
+				<Button class="w-full">Try the app!</Button>
 			</a>
 		</Card.Footer>
 	</Card.Root>

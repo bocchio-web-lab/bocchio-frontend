@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Cloud from 'lucide-svelte/icons/cloud';
 	import LogOut from 'lucide-svelte/icons/log-out';
 	import User from 'lucide-svelte/icons/user';
 
-	const isUserLoggedIn: boolean = true;
+	const isUserLoggedIn: boolean = $page.data.user === undefined;
 </script>
 
 {#if isUserLoggedIn}
@@ -54,16 +55,21 @@
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item>
 					<User class="mr-2 h-4 w-4" />
-					<span>Profile</span>
+					<a href="/profile">Profile</a>
 				</DropdownMenu.Item>
 				<DropdownMenu.Item>
 					<Cloud class="mr-2 h-4 w-4" />
-					<span>API</span>
+					<a href="/dashboard">API</a>
 				</DropdownMenu.Item>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item>
 					<LogOut class="mr-2 h-4 w-4" />
-					<span>Log out</span>
+					<form
+						action="/auth/logout"
+						method="POST"
+					>
+						<button type="submit">Log out</button>
+					</form>
 				</DropdownMenu.Item>
 			</DropdownMenu.Group>
 		</DropdownMenu.Content>

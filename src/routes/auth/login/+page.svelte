@@ -11,7 +11,7 @@
 	export let form: ActionData;
 
 	let email = 'tommaso.bocchietti@gmail.com';
-	let password = '12345678';
+	let password = 'Superme01.';
 
 	onMount(() => {
 		if (form?.success) {
@@ -21,10 +21,7 @@
 </script>
 
 <Card.Root class="mx-auto max-w-sm">
-	<form
-		method="POST"
-		action="?/login"
-	>
+	<form method="POST">
 		<Card.Header>
 			<Card.Title class="text-2xl">Login</Card.Title>
 			<Card.Description>Enter your email below to login to your account</Card.Description>
@@ -85,6 +82,5 @@
 {#if form?.success}
 	<p>Succesfully logged in</p>
 {:else}
-	<pre class="w-full break-words p-4">{form?.requestInit}</pre>
-	<pre class="w-full break-words p-4">{form?.text}</pre>
+	<p>{form?.statusText}</p>
 {/if}

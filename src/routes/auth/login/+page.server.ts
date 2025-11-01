@@ -1,54 +1,76 @@
 import type { PageServerLoad, Actions } from './$types';
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
+import * as setCookie from 'set-cookie-parser';
 
 export const load = (({ cookies }) => {
 
-    if (cookies.get('bearer_token_auth')) {
-        redirect(307, '/dashboard');
-    }
+    // if (cookies.get('backend_bocchio_session')) {
+    //     redirect(307, '/dashboard');
+    // }
 
 }) satisfies PageServerLoad;
 
 export const actions = {
-    login: async ({ request, cookies }) => {
+    default: async ({ request, cookies, locals }) => {
 
         const data = await request.formData();
+        const csrfResponse = await fetch('http://bocchio-backend.test/sanctum/csrf-cookie');
 
-        try {
-            const csrfResponse = await fetch('http://identity.test/sanctum/csrf-cookie');
-            const xsrfToken: string = csrfResponse.headers
-                .getSetCookie()
-                .find(cookie => cookie.startsWith('XSRF-TOKEN'))
-                ?.split(';')[0]
-                .split('=')[1];
-            const identity_service_bocchio_session: string = csrfResponse.headers
-                .getSetCookie()
-                .find(cookie => cookie.startsWith('identity_service_bocchio_session'))
-                ?.split(';')[0]
-                .split('=')[1];
+        let cookiesArray = setCookie.parse(csrfResponse.headers.getSetCookie() || '', {
+            decodeValues: true,
+            map: false,
+        });
 
-            cookies.set('XSRF-TOKEN', xsrfToken, { path: '/' });
-            cookies.set('identity_service_bocchio_session', identity_service_bocchio_session, { path: '/' });
+        cookiesArray.forEach(cookie => {
+            cookies.set(cookie.name, cookie.value, {
+                secure: true,
+                httpOnly: true,
+                path: '/'
+            });
+        });
 
-            const requestInit: RequestInit = {
+        const xsrfToken = cookies.get('XSRF-TOKEN');
+        const backend_bocchio_session = cookies.get('backend_bocchio_session');
+
+        if (!xsrfToken || !backend_bocchio_session) {
+            return fail(csrfResponse.status, { message: csrfResponse.statusText });
+        }
+
+        const loginResponse = await fetch('http://bocchio-backend.test/login',
+            {
                 body: data,
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'X-XSRF-TOKEN': decodeURIComponent(xsrfToken),
                     'accept': 'application/json',
-                    Cookie: `identity_service_bocchio_session=${identity_service_bocchio_session}; XSRF-TOKEN=${xsrfToken}`,
+                    Cookie: `backend_bocchio_session=${backend_bocchio_session}; XSRF-TOKEN=${xsrfToken}`,
                 },
                 cache: 'no-cache',
-            };
-            const loginResponse = await fetch('http://identity.test/login', requestInit);
+            }
+        );
 
-            const text = await loginResponse.text();
-            return { success: loginResponse.status == 200, requestInit: JSON.stringify(requestInit), text: text };
+        return { success: loginResponse.status == 200, statusText: loginResponse.statusText };
 
-        } catch (error) {
-            console.error('An error occurred:', error);
-        }
+        // const userResponse = await fetch('http://bocchio-backend.test/user',
+        //     {
+        //         method: 'GET',
+        //         credentials: 'include',
+        //         headers: {
+        //             'accept': 'application/json',
+        //             Cookie: `backend_bocchio_session=${backend_bocchio_session}; XSRF-TOKEN=${xsrfToken}`,
+        //         },
+        //         cache: 'no-cache',
+        //     }
+        // );
+
+        // const user = await userResponse.json();
+
+        // locals.user = {
+        //     nickname: user.nickname,
+        // };
+
+        // return { success: userResponse.status == 200, statusText: userResponse.statusText };
 
     }
 } satisfies Actions;
