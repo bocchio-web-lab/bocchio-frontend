@@ -1,41 +1,43 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Card from '$lib/components/ui/card/index';
-	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
+	import { Card } from '$lib/components/ui/card';
 
-	export let data: PageData;
+	type AppEntry = {
+		id: string;
+		title: string;
+		description: string;
+		image: string;
+		url: string;
+	};
+
+	let apps: AppEntry[] = [];
+
+	onMount(async () => {
+		const res = await fetch('/api/apps');
+		apps = await res.json();
+	});
 </script>
 
-{#each data.apps as app}
-	<Card.Root
-		class="group flex w-full flex-wrap justify-between gap-8 transition-transform odd:flex-row-reverse hover:scale-105"
-	>
-		<div class="grow-[2] basis-96 content-center">
-			<Card.Header>
-				<Card.Title>{app.title}</Card.Title>
-				<Card.Description>{app.description}</Card.Description>
-			</Card.Header>
-
-			<Card.Content>
-				{app.content}
-			</Card.Content>
-		</div>
-		<div class="grow-[1] basis-60 content-center">
+<!-- Grid layout -->
+<div class="grid justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+	{#each apps as app}
+		<Card
+			class="w-full max-w-sm cursor-pointer overflow-hidden shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-xl"
+		>
 			<img
-				src="/icons/github.svg"
-				class="m-auto max-h-52 max-w-full rounded-2xl bg-white p-6 transition-transform group-hover:scale-110"
-				alt="GitHub logo"
+				src={app.image}
+				alt={app.title}
+				class="h-48 w-full object-cover"
 			/>
-		</div>
 
-		<Card.Footer class="mt-auto block w-full">
-			<a
-				href={app.link}
-				class=" w-full"
-			>
-				<Button class="w-full">Try the app!</Button>
-			</a>
-		</Card.Footer>
-	</Card.Root>
-{/each}
+			<div class="flex h-full flex-col justify-between p-6">
+				<div>
+					<h2 class="mb-2 text-xl font-semibold">{app.title}</h2>
+					<p class="mb-4 line-clamp-3 text-sm text-muted-foreground">
+						{app.description}
+					</p>
+				</div>
+			</div>
+		</Card>
+	{/each}
+</div>

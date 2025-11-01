@@ -43,10 +43,7 @@
 
 <div class="grid gap-6">
 	{#each posts as post}
-		<Card
-			class="cursor-pointer transition-all hover:translate-y-[-2px]"
-			on:click={() => console.log('Card clicked for post ID:', post.id)}
-		>
+		<Card class="cursor-pointer transition-all hover:translate-y-[-2px]">
 			<div
 				class="p-6"
 				role="button"

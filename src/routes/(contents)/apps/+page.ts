@@ -1,11 +1,11 @@
-import type { PageLoad } from './$types';
+// import type { PageLoad } from './$types';
 
-export const load = (async () => {
+// export const load = (async () => {
 
-    // const res = await fetch('https://dummyjson.com/apps/search?q=' + param.params.contentType);
-    const res = await fetch('http://blogger.test/api/posts');
-    const apps = await res.json();
+//     // const res = await fetch('https://dummyjson.com/apps/search?q=' + param.params.contentType);
+//     // const res = await fetch('http://blogger.test/api/posts');
+//     // const apps = await res.json();
 
-    return { apps };
+//     // return { apps };
 
-}) satisfies PageLoad;
+// }) satisfies PageLoad;
