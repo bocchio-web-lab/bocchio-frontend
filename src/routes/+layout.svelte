@@ -3,9 +3,26 @@
 	import '../app.css';
 
 	onMount(() => {
-		const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-		document.documentElement.dataset.theme = theme;
+		const saved = localStorage.getItem('theme');
+		if (saved) {
+			document.documentElement.dataset.theme = saved;
+		} else {
+			const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			document.documentElement.dataset.theme = systemDark ? 'dark' : 'light';
+		}
 	});
 </script>
+
+<svelte:head>
+	<title>Bocchio Web Lab</title>
+	<meta
+		name="description"
+		content="Portfolio and projects by Tommaso Bocchietti"
+	/>
+	<link
+		rel="icon"
+		href="/favicon.ico"
+	/>
+</svelte:head>
 
 <slot />

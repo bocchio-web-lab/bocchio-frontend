@@ -2,14 +2,12 @@
 	import { page } from '$app/stores';
 	import { derived } from 'svelte/store';
 
-	// Define your nav items once
 	const navItems = [
 		{ href: '/projects', label: 'Projects' },
 		{ href: '/apps', label: 'Apps' },
 		{ href: '/blog', label: 'Blog' }
 	];
 
-	// Derive current path
 	const currentPath = derived(page, ($page) => $page.url.pathname);
 </script>
 

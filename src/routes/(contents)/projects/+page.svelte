@@ -1,50 +1,60 @@
-<script lang="ts">
-	import type { PageData } from './$types';
-	import { goto } from '$app/navigation';
-	export let data: PageData;
+<script>
+	import {
+		Timeline,
+		TimelineItem,
+		TimelineSeparator,
+		TimelineDot,
+		TimelineConnector,
+		TimelineContent,
+		TimelineOppositeContent
+	} from 'svelte-vertical-timeline';
 
-	const handleClick = (slug: string) => goto(`/projects/${slug}`);
+	import { cn } from '$lib/utils';
+	import { goto } from '$app/navigation';
+	import AtomicCard from '$lib/components/atomic/card.svelte';
+
+	export let data;
 </script>
 
-<!-- Git-style timeline -->
-<div class="relative px-8 py-12 md:px-20">
-	<!-- Vertical line -->
-	<div class="absolute left-1/2 top-0 h-full w-0.5 -translate-x-1/2 bg-border"></div>
+<svelte:head>
+	<title>Projects | Bocchio Web Lab</title>
+	<meta
+		name="description"
+		content="Explore a collection of robotics and web development projects."
+	/>
+</svelte:head>
 
+<Timeline position="alternate">
 	{#each data.projects as project, i}
-		<div
-			class="group relative mb-20 flex cursor-pointer items-center justify-between"
-			on:click={() => handleClick(project.slug)}
-		>
-			<!-- Left/right alternation -->
-			{#if i % 2 === 0}
-				<!-- Left project -->
-				<div class="hidden w-1/2 pr-8 text-right md:block">
-					<h3 class="text-xl font-bold transition-colors group-hover:text-primary">
-						{project.name}
-					</h3>
-					<p class="text-sm text-muted-foreground">{project.year}</p>
-				</div>
-			{/if}
+		<TimelineItem>
+			<TimelineSeparator>
+				<TimelineDot
+					style="width: 15rem; height: 15rem; background-color: transparent; border: none;"
+				>
+					<button on:click={() => goto(`/projects/${project.slug}`)}>
+						<img
+							src={project.image}
+							alt={project.name}
+							class="h-full w-full object-cover"
+						/>
+					</button>
+				</TimelineDot>
 
-			<!-- Node -->
-			<div class="z-10 h-6 w-6 rounded-full border-4 border-background bg-primary shadow-md"></div>
-
-			<!-- Right project -->
-			{#if i % 2 === 1}
-				<div class="hidden w-1/2 pl-8 md:block">
-					<h3 class="text-xl font-bold transition-colors group-hover:text-primary">
-						{project.name}
-					</h3>
-					<p class="text-sm text-muted-foreground">{project.year}</p>
-				</div>
-			{/if}
-
-			<!-- Mobile stacked layout -->
-			<div class="mt-6 flex w-full flex-col items-center text-center md:hidden">
-				<h3 class="text-lg font-semibold">{project.name}</h3>
-				<p class="text-sm text-muted-foreground">{project.year}</p>
-			</div>
-		</div>
+				{#if i < data.projects.length - 1}
+					<TimelineConnector style={'height: 100px;'} />
+				{/if}
+			</TimelineSeparator>
+			<TimelineContent>
+				<AtomicCard
+					data={{
+						title: project.name,
+						excerpt: project.description
+					}}
+					class={cn('mt-2', i % 2 === 0 ? 'text-left' : 'text-right')}
+					clickable={true}
+					on:click={() => goto(`/projects/${project.slug}`)}
+				/>
+			</TimelineContent>
+		</TimelineItem>
 	{/each}
-</div>
+</Timeline>

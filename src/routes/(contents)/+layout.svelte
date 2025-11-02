@@ -1,21 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import * as Header from '$lib/components/header/index';
-	import Slogan from '$lib/components/slogan/slogan.svelte';
+	import Header from '$lib/components/header/header.svelte';
+	import Slogan from '$lib/components/atomic/slogan.svelte';
 
 	$: isHome = $page.url.pathname === '/';
 </script>
 
-<Header.Root>
-	<Header.Logo />
-	<Header.Links />
-	<Header.Profile />
-</Header.Root>
+<Header />
 
 {#if !isHome}
 	<Slogan />
 {/if}
 
-<div class="mx-auto my-6 w-11/12 max-w-screen-xl">
+<div class="m-auto mb-16 mt-8 w-full max-w-screen-xl px-4 sm:px-6 lg:px-8">
 	<slot />
 </div>

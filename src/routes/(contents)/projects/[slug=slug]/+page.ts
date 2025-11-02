@@ -4,7 +4,5 @@ export const load: PageLoad = async ({ fetch, params }) => {
     const res = await fetch(`/api/projects/${params.slug}`);
     const project = await res.json();
 
-    console.log(project);
-
     return { project };
 };

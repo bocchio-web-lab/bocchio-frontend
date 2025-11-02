@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Card } from '$lib/components/ui/card';
+	import AtomicCard from '$lib/components/atomic/card.svelte';
+	import { goto } from '$app/navigation';
 
 	type BlogPreview = {
 		id: string;
@@ -43,25 +45,16 @@
 
 <div class="grid gap-6">
 	{#each posts as post}
-		<Card class="cursor-pointer transition-all hover:translate-y-[-2px]">
-			<div
-				class="p-6"
-				role="button"
-				tabindex="0"
-				on:click={() => toggleExpand(post.id)}
-				on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleExpand(post.id)}
-			>
-				<h2 class="mb-2 text-2xl font-semibold">{post.title}</h2>
-				<p class="mb-4 text-sm text-muted-foreground">{post.date}</p>
-
-				<p class="text-base leading-relaxed">
-					{#if expandedId === post.id}
-						{post.content ?? 'Loading...'}
-					{:else}
-						{post.preview}...
-					{/if}
-				</p>
-			</div>
-		</Card>
+		<AtomicCard
+			data={{
+				title: post.title,
+				excerpt: post.preview,
+				content: expandedId === post.id ? post.content : undefined,
+				date: post.date
+			}}
+			class="cursor-pointer"
+			clickable={true}
+			on:click={() => toggleExpand(post.id)}
+		/>
 	{/each}
 </div>

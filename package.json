@@ -46,6 +46,7 @@
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.438.0",
 		"set-cookie-parser": "^2.7.1",
+		"svelte-vertical-timeline": "^1.0.2",
 		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1"
 	}
