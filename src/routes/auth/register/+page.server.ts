@@ -1,48 +1,59 @@
+// src/routes/auth/register/+page.server.ts
 import type { PageServerLoad, Actions } from './$types';
-import { redirect } from '@sveltejs/kit';
+import { redirect, fail } from '@sveltejs/kit';
+import { register, isAuthenticated } from '$lib/server/auth';
 
-export const load = (({ cookies }) => {
-
-    if (cookies.get('bearer_token_auth')) {
-        redirect(307, '/dashboard');
+export const load = (async ({ cookies }) => {
+    // Redirect if already authenticated
+    if (await isAuthenticated(cookies)) {
+        throw redirect(302, '/dashboard');
     }
-
 }) satisfies PageServerLoad;
 
 export const actions = {
     default: async ({ request, cookies }) => {
-
         const data = await request.formData();
+        const name = data.get('name')?.toString();
+        const email = data.get('email')?.toString();
+        const password = data.get('password')?.toString();
+        const password_confirmation = data.get('password_confirmation')?.toString();
 
-        try {
-            const csrfResponse = await fetch('http://bocchio-backend.test/sanctum/csrf-cookie');
-
-            const csrfCookie = csrfResponse.headers.getSetCookie();
-            const xsrfToken: string = csrfCookie.find(cookie => cookie.startsWith('XSRF-TOKEN'))?.split(';')[0].split('=')[1];
-            const backend_bocchio_session: string = csrfCookie.find(cookie => cookie.startsWith('backend_bocchio_session'))?.split(';')[0].split('=')[1];
-
-            cookies.set('XSRF-TOKEN', xsrfToken, { path: '/' });
-            cookies.set('backend_bocchio_session', backend_bocchio_session, { path: '/' });
-
-            const loginResponse = await fetch('http://bocchio-backend.test/login',
-                {
-                    body: data,
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'X-XSRF-TOKEN': decodeURIComponent(xsrfToken),
-                        'accept': 'application/json',
-                        Cookie: `backend_bocchio_session=${backend_bocchio_session}; XSRF-TOKEN=${xsrfToken}`,
-                    },
-                    cache: 'no-cache',
-                }
-            );
-
-            return { success: loginResponse.status == 200, statusText: loginResponse.statusText };
-
-        } catch (error) {
-            console.error('An error occurred:', error);
+        if (!name || !email || !password || !password_confirmation) {
+            return fail(400, {
+                error: 'All fields are required',
+                name,
+                email
+            });
         }
 
+        if (password !== password_confirmation) {
+            return fail(400, {
+                error: 'Passwords do not match',
+                name,
+                email
+            });
+        }
+
+        const result = await register(
+            {
+                name,
+                email,
+                password,
+                password_confirmation
+            },
+            cookies
+        );
+
+        if (!result.success) {
+            return fail(422, {
+                error: result.message || 'Registration failed',
+                errors: result.errors,
+                name,
+                email
+            });
+        }
+
+        // Redirect to dashboard on success (Laravel Fortify auto-logs in after registration)
+        throw redirect(302, '/dashboard');
     }
 } satisfies Actions;

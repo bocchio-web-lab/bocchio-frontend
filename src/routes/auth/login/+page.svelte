@@ -3,31 +3,43 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import type { ActionData, PageData } from './$types';
+	import { enhance, applyAction } from '$app/forms';
 
-	export let data: PageData;
+	import type { ActionData } from './$types';
+
 	export let form: ActionData;
 
-	let email = 'tommaso.bocchietti@gmail.com';
-	let password = 'Superme01.';
-
-	onMount(() => {
-		if (form?.success) {
-			goto('/');
-		}
-	});
+	let loading = false;
 </script>
 
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <Card.Root class="mx-auto max-w-sm">
-	<form method="POST">
+	<form
+		method="POST"
+		use:enhance={() => {
+			loading = true;
+			return async ({ result }) => {
+				loading = false;
+				console.log({ result });
+				await applyAction(result);
+			};
+		}}
+	>
 		<Card.Header>
 			<Card.Title class="text-2xl">Login</Card.Title>
 			<Card.Description>Enter your email below to login to your account</Card.Description>
 		</Card.Header>
 
 		<Card.Content>
+			{#if form?.error}
+				<div class="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+					{form.error}
+				</div>
+			{/if}
+
 			<div class="grid gap-4">
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
@@ -35,16 +47,22 @@
 						id="email"
 						type="email"
 						name="email"
-						bind:value={email}
-						placeholder="tommaso.bocchietti@gmail.com"
+						value={form?.email ?? ''}
+						placeholder="you@example.com"
 						required
+						disabled={loading}
+						class={form?.errors?.email ? 'border-destructive' : ''}
 					/>
+					{#if form?.errors?.email}
+						<p class="text-sm text-destructive">{form.errors.email[0]}</p>
+					{/if}
 				</div>
+
 				<div class="grid gap-2">
 					<div class="flex items-center">
 						<Label for="password">Password</Label>
 						<a
-							href="reset-password"
+							href="/auth/reset-password"
 							class="ml-auto inline-block text-sm underline"
 						>
 							Forgot your password?
@@ -54,22 +72,28 @@
 						id="password"
 						type="password"
 						name="password"
-						bind:value={password}
 						required
+						disabled={loading}
+						class={form?.errors?.password ? 'border-destructive' : ''}
 					/>
+					{#if form?.errors?.password}
+						<p class="text-sm text-destructive">{form.errors.password[0]}</p>
+					{/if}
 				</div>
+
 				<Button
 					type="submit"
 					class="w-full"
+					disabled={loading}
 				>
-					Login
+					{loading ? 'Logging in...' : 'Login'}
 				</Button>
 			</div>
 
 			<div class="mt-4 text-center text-sm">
 				Don't have an account?
 				<a
-					href="register"
+					href="/auth/register"
 					class="underline"
 				>
 					Sign up
@@ -78,9 +102,3 @@
 		</Card.Content>
 	</form>
 </Card.Root>
-
-{#if form?.success}
-	<p>Succesfully logged in</p>
-{:else}
-	<p>{form?.statusText}</p>
-{/if}

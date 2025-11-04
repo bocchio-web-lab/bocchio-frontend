@@ -4,7 +4,7 @@
 	import IconRunningMan from '$lib/components/atomic/icon-running-man.svelte';
 	import { LogIn, SunMoonIcon, UserPlus, Cloud, LogOut, User } from 'lucide-svelte';
 
-	const isUserLoggedIn: boolean = $page.data.user !== null && $page.data.user !== undefined;
+	$: user = $page.data.user;
 </script>
 
 <DropdownMenu.Root>
@@ -15,7 +15,7 @@
 		<DropdownMenu.Group>
 			<!-- User Label -->
 			<DropdownMenu.Label>
-				{isUserLoggedIn ? $page.data.user.name : 'Guest'}
+				{!!user ? user.name : 'Guest'}
 			</DropdownMenu.Label>
 
 			<DropdownMenu.Separator />
@@ -36,7 +36,7 @@
 			</DropdownMenu.Item>
 
 			<!-- Authenticated User -->
-			{#if isUserLoggedIn}
+			{#if !!user}
 				<DropdownMenu.Separator />
 
 				<!-- Navigation -->

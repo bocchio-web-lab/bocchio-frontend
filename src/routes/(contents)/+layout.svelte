@@ -12,6 +12,6 @@
 	<Slogan />
 {/if}
 
-<div class="m-auto mb-16 mt-8 w-full max-w-screen-xl px-4 sm:px-6 lg:px-8">
+<main class="m-auto mb-16 mt-8 w-full max-w-screen-xl px-4 sm:px-6 lg:px-8">
 	<slot />
-</div>
+</main>
