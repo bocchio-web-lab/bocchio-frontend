@@ -1,3 +1,15 @@
+<script
+	context="module"
+	lang="ts"
+>
+	export type AtomicCardData = {
+		title: string;
+		content: string;
+		date?: string;
+		image?: string;
+	};
+</script>
+
 <script lang="ts">
 	import {
 		Card,
@@ -9,18 +21,10 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { cn } from '$lib/utils';
 
-	export let data: {
-		title: string;
-		excerpt: string;
-		content?: string;
-		date?: string;
-		image?: string;
-	};
-
+	export let data: AtomicCardData;
+	export let preview: boolean = false;
 	export let className: HTMLAttributes<HTMLDivElement>['class'] = undefined;
 	export { className as class };
-
-	$: isRight = typeof className === 'string' && className.includes('text-right');
 </script>
 
 <Card
@@ -36,12 +40,7 @@
 		/>
 	{/if}
 
-	<CardHeader
-		class={cn(
-			'flex flex-wrap items-center justify-between gap-2 pb-2',
-			isRight ? 'flex-row-reverse' : 'flex-row'
-		)}
-	>
+	<CardHeader class="flex flex-row flex-wrap items-center justify-between gap-2 pb-2">
 		<CardTitle class="leading-tight">{data.title}</CardTitle>
 		{#if data.date}
 			<CardDescription class="text-sm leading-tight text-muted-foreground">
@@ -50,17 +49,9 @@
 		{/if}
 	</CardHeader>
 
-	{#if data.content}
-		<CardContent>
-			<p class="text-sm text-muted-foreground">
-				{data.content}
-			</p>
-		</CardContent>
-	{:else}
-		<CardContent>
-			<p class="line-clamp-3 text-sm text-muted-foreground">
-				{data.excerpt}
-			</p>
-		</CardContent>
-	{/if}
+	<CardContent>
+		<p class={cn('text-sm text-muted-foreground', preview ? 'line-clamp-3' : '')}>
+			{data.content}
+		</p>
+	</CardContent>
 </Card>

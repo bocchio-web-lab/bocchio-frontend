@@ -23,7 +23,7 @@
 	<title>Apps</title>
 	<meta
 		name="description"
-		content="Explore our collection of applications."
+		content="A collection of web applications developed by Tommaso Bocchietti."
 	/>
 </svelte:head>
 

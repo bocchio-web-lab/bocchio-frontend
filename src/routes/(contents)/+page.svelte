@@ -3,6 +3,14 @@
 	import { MailIcon, GithubIcon, LinkedinIcon } from 'lucide-svelte';
 </script>
 
+<svelte:head>
+	<title>Bocchio</title>
+	<meta
+		name="description"
+		content="Welcome to the personal website of Tommaso Bocchietti, a Mechatronics & Robotics Engineer."
+	/>
+</svelte:head>
+
 <section
 	class="intro--banner flex flex-col items-center justify-center px-6 py-16 md:flex-row md:justify-between md:px-12 lg:px-24"
 >

@@ -1,60 +1,35 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { Card } from '$lib/components/ui/card';
+	import type { BlogPost } from '$lib/types/blog';
 	import AtomicCard from '$lib/components/atomic/card.svelte';
-	import { goto } from '$app/navigation';
 
-	type BlogPreview = {
-		id: string;
-		title: string;
-		date: string;
-		preview: string;
-	};
+	export let data: { posts: BlogPost[] };
+	let expandedSlug: string | null = null;
 
-	type BlogPost = BlogPreview & { content?: string };
-
-	let posts: BlogPost[] = [];
-	let expandedId: string | null = null;
-
-	// Load previews initially
-	onMount(async () => {
-		const res = await fetch('/api/blog');
-		posts = await res.json();
-	});
-
-	async function toggleExpand(id: string) {
-		if (expandedId === id) {
-			expandedId = null;
-			return;
-		}
-
-		expandedId = id;
-		const index = posts.findIndex((p) => p.id === id);
-		if (index === -1) return;
-
-		if (!posts[index].content) {
-			const res = await fetch(`/api/blog?id=${id}`);
-			const fullPost = await res.json();
-			posts[index].content = fullPost.content;
-
-			// Trigger re-render
-			posts = [...posts];
-		}
+	async function toggleExpand(slug: BlogPost['slug']) {
+		expandedSlug = expandedSlug === slug ? null : slug;
 	}
 </script>
 
+<svelte:head>
+	<title>Blog</title>
+	<meta
+		name="description"
+		content="Some of my thoughts on robotics, control systems, and mechatronics."
+	/>
+</svelte:head>
+
 <div class="grid gap-6">
-	{#each posts as post}
+	{#each data.posts as post}
 		<AtomicCard
 			data={{
 				title: post.title,
-				excerpt: post.preview,
-				content: expandedId === post.id ? post.content : undefined,
+				content: post.content,
 				date: post.date
 			}}
 			class="cursor-pointer"
+			preview={expandedSlug !== post.slug}
 			clickable={true}
-			on:click={() => toggleExpand(post.id)}
+			on:click={() => toggleExpand(post.slug)}
 		/>
 	{/each}
 </div>

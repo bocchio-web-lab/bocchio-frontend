@@ -14,11 +14,6 @@
 </script>
 
 <svelte:head>
-	<title>Bocchio Web Lab</title>
-	<meta
-		name="description"
-		content="Portfolio and projects by Tommaso Bocchietti"
-	/>
 	<link
 		rel="icon"
 		href="/favicon.ico"
