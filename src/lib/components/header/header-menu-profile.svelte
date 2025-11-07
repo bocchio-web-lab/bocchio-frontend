@@ -42,7 +42,7 @@
 				<!-- Navigation -->
 				<DropdownMenu.Item>
 					<a
-						href="/profile"
+						href="/dashboard/profile"
 						class="flex w-full items-center"
 					>
 						<User class="mr-2 h-4 w-4" />
