@@ -8,6 +8,9 @@ export const load = (async ({ cookies }) => {
     if (await isAuthenticated(cookies)) {
         throw redirect(302, '/dashboard');
     }
+    return {
+        user: null
+    };
 }) satisfies PageServerLoad;
 
 export const actions = {

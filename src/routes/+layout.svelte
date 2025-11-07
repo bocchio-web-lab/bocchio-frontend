@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Footer from '$lib/components/footer/footer.svelte';
 	import '../app.css';
 
 	onMount(() => {
@@ -13,11 +14,6 @@
 	});
 </script>
 
-<svelte:head>
-	<link
-		rel="icon"
-		href="/favicon.ico"
-	/>
-</svelte:head>
-
 <slot />
+
+<Footer />

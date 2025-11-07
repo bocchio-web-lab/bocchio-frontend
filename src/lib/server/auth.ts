@@ -1,10 +1,12 @@
 // src/lib/server/auth.ts
 import { redirect, type Cookies } from '@sveltejs/kit';
 import * as setCookie from 'set-cookie-parser';
+import { PUBLIC_API_BASE_URL, PUBLIC_FRONTEND_URL } from '$env/static/public';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://bocchio-backend.test';
+const SESSION_COOKIE_NAME: string = 'backend_bocchio_session';
+const XSRF_TOKEN_NAME: string = 'XSRF-TOKEN';
 
-interface AuthResponse {
+export interface AuthResponse {
     success: boolean;
     message?: string;
     errors?: Record<string, string[]>;
@@ -15,7 +17,7 @@ interface AuthResponse {
  */
 export async function getCsrfToken(cookies: Cookies): Promise<boolean> {
     try {
-        const response = await fetch(`${API_BASE_URL}/sanctum/csrf-cookie`, {
+        const response = await fetch(`${PUBLIC_API_BASE_URL}/sanctum/csrf-cookie`, {
             credentials: 'include'
         });
 
@@ -23,18 +25,34 @@ export async function getCsrfToken(cookies: Cookies): Promise<boolean> {
             return false;
         }
 
-        const cookiesArray = setCookie.parse(response.headers.getSetCookie() || '', {
-            decodeValues: true,
-            map: false
-        });
+        // Handle multiple Set-Cookie headers
+        const setCookieHeaders = response.headers.getSetCookie?.() || [];
 
-        cookiesArray.forEach((cookie) => {
-            cookies.set(cookie.name, cookie.value, {
-                path: '/',
-                httpOnly: cookie.httpOnly ?? true,
-                secure: cookie.secure ?? false,
-                sameSite: (cookie.sameSite as 'strict' | 'lax' | 'none') ?? 'lax',
-                maxAge: cookie.maxAge
+        if (setCookieHeaders.length === 0) {
+            const singleHeader = response.headers.get('set-cookie');
+            if (singleHeader) {
+                setCookieHeaders.push(singleHeader);
+            }
+        }
+
+        if (setCookieHeaders.length === 0) {
+            console.error('No Set-Cookie headers received');
+            return false;
+        }
+
+        setCookieHeaders.forEach(headerValue => {
+            const parsedCookies = setCookie.parse(headerValue, {
+                decodeValues: true
+            });
+
+            parsedCookies.forEach((cookie) => {
+                cookies.set(cookie.name, cookie.value, {
+                    path: cookie.path || '/',
+                    httpOnly: false, // Cannot set httpOnly from server-side JS
+                    secure: cookie.secure ?? false,
+                    sameSite: (cookie.sameSite as 'strict' | 'lax' | 'none') ?? 'lax',
+                    maxAge: cookie.maxAge
+                });
             });
         });
 
@@ -54,23 +72,51 @@ async function makeAuthRequest(
     cookies: Cookies,
     body?: FormData
 ): Promise<Response> {
-    const xsrfToken = cookies.get('XSRF-TOKEN');
-    const sessionCookie = cookies.get('backend_bocchio_session');
+    const xsrfToken = cookies.get(XSRF_TOKEN_NAME);
+    const sessionCookie = cookies.get(SESSION_COOKIE_NAME);
 
     if (!xsrfToken || !sessionCookie) {
         return new Response(null, { status: 401 });
     }
 
-    return await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${PUBLIC_API_BASE_URL}${endpoint}`, {
         method,
         body,
         credentials: 'include',
         headers: {
             'X-XSRF-TOKEN': decodeURIComponent(xsrfToken),
-            accept: 'application/json',
-            Cookie: `backend_bocchio_session=${sessionCookie}; XSRF-TOKEN=${xsrfToken}`,
+            'Accept': 'application/json',
+            'Cookie': `${SESSION_COOKIE_NAME}=${sessionCookie}; ${XSRF_TOKEN_NAME}=${xsrfToken}`,
+            'Referer': PUBLIC_FRONTEND_URL
         }
     });
+
+    // Update cookies from response
+    const setCookieHeaders = response.headers.getSetCookie?.() || [];
+    if (setCookieHeaders.length === 0) {
+        const singleHeader = response.headers.get('set-cookie');
+        if (singleHeader) {
+            setCookieHeaders.push(singleHeader);
+        }
+    }
+
+    setCookieHeaders.forEach(headerValue => {
+        const parsedCookies = setCookie.parse(headerValue, {
+            decodeValues: true
+        });
+
+        parsedCookies.forEach((cookie) => {
+            cookies.set(cookie.name, cookie.value, {
+                path: cookie.path || '/',
+                httpOnly: false,
+                secure: cookie.secure ?? false,
+                sameSite: (cookie.sameSite as 'strict' | 'lax' | 'none') ?? 'lax',
+                maxAge: cookie.maxAge
+            });
+        });
+    });
+
+    return response;
 }
 
 /**
@@ -184,8 +230,8 @@ export async function logout(cookies: Cookies): Promise<void> {
         console.error('Logout error:', error);
     } finally {
         // Clear all auth cookies
-        cookies.delete('XSRF-TOKEN', { path: '/' });
-        cookies.delete('backend_bocchio_session', { path: '/' });
+        cookies.delete(XSRF_TOKEN_NAME, { path: '/' });
+        cookies.delete(SESSION_COOKIE_NAME, { path: '/' });
     }
 }
 
@@ -211,7 +257,7 @@ export async function getUser(cookies: Cookies): Promise<any | null> {
  * Check if user is authenticated
  */
 export async function isAuthenticated(cookies: Cookies): Promise<boolean> {
-    const sessionCookie = cookies.get('backend_bocchio_session');
+    const sessionCookie = cookies.get(SESSION_COOKIE_NAME);
     if (!sessionCookie) {
         return false;
     }
@@ -219,7 +265,6 @@ export async function isAuthenticated(cookies: Cookies): Promise<boolean> {
     const user = await getUser(cookies);
     return user !== null;
 }
-
 
 /**
  * Require authentication - redirect to login if not authenticated

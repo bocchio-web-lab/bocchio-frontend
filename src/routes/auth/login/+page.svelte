@@ -10,6 +10,7 @@
 	export let form: ActionData;
 
 	let loading = false;
+	let resultDump = '';
 </script>
 
 <svelte:head>
@@ -23,7 +24,6 @@
 			loading = true;
 			return async ({ result }) => {
 				loading = false;
-				console.log({ result });
 				await applyAction(result);
 			};
 		}}
@@ -101,4 +101,5 @@
 			</div>
 		</Card.Content>
 	</form>
+	<p>{resultDump}</p>
 </Card.Root>

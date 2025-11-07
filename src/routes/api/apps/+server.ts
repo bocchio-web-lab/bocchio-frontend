@@ -15,21 +15,21 @@ const apps: AppEntry[] = [
         id: 'connect4',
         title: 'Connect 4 Game',
         description: 'Play a classic Connect-4 against an AI or with a friend online.',
-        image: '/images/profile.png',
+        image: 'https://avatars.githubusercontent.com/u/67842431',
         url: '/apps/connect4',
     },
     {
         id: 'identity',
         title: 'Identity Service',
         description: 'Manage authentication and API access across your microservices.',
-        image: '/images/profile.png',
+        image: 'https://avatars.githubusercontent.com/u/67842431',
         url: '/apps/identity',
     },
     {
         id: 'graph-analyzer',
         title: 'Graph Analyzer',
         description: 'Visualize and analyze complex graph networks directly in your browser.',
-        image: '/images/profile.png',
+        image: 'https://avatars.githubusercontent.com/u/67842431',
         url: '/apps/graph-analyzer',
     }
 ];

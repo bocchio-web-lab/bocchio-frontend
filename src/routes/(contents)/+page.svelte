@@ -79,7 +79,7 @@
 	<div class="image-wrapper mt-10 md:mt-0">
 		<!-- svelte-ignore a11y-img-redundant-alt -->
 		<img
-			src="/images/profile.png"
+			src="https://avatars.githubusercontent.com/u/67842431"
 			alt="Profile picture of Tommaso Bocchietti"
 			class="h-60 w-60 rounded-full object-cover md:h-80 md:w-80"
 		/>
